@@ -29,8 +29,11 @@ Note that pomegranate is not available through Anaconda.
 These packages are also installable using [Pip](https://pypi.python.org/pypi/pip):
 
 `pip install scipy`
+
 `pip install numpy`
+
 `pip install matplotlib`
+
 `pip install pomegranate`
 
 
