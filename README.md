@@ -66,9 +66,11 @@ file, AD-LIBS will create a new one with all given parameters along with your
 output files, in case you want to run AD-LIBS again with all or most of the 
 same parameters.
 
-Note that in order for `bin/adlibs.py`, you will need to have `python2.7` in your
-`$PATH` environment variable, or you can run it by explicitly including the path
-to `python2.7`: `/path/to/python2.7 bin/adlibs.py`
+Note that in order for `bin/adlibs.py` to work, you will need to have 
+`python2.7` in your `$PATH` environment variable, or you can run it by 
+explicitly including the path to `python2.7` as follows:
+
+`/path/to/python2.7 bin/adlibs.py`
 
 ## Example input
 
