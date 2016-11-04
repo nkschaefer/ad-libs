@@ -15,7 +15,7 @@ AD-LIBS requires the following Python packages:
 An easy way to obtain the first three is to use [Anaconda](https://www.continuum.io/downloads), 
 which contains these packages.
 
-If using anaconda and they are not installed, try using "`conda install`":
+If using anaconda and they are not installed, try using `conda install`:
 
 `conda install scipy`
 
@@ -41,10 +41,10 @@ These packages are also installable using [Pip](https://pypi.python.org/pypi/pip
 AD-LIBS equires gcc for compiling C components, as well as [zlib](http://www.zlib.net/) 
 for reading compressed [FASTA](https://en.wikipedia.org/wiki/FASTA_format) files.
 
-To compile C programs, simply type `make` in the main project directories.
-Binary files will be stored in /bin and run by the main Python program.
+To compile C programs, simply type `make` in the main project directory.
+Binary files will be stored in `/bin` and run by the main Python program.
 
-Note that src/kseq.h is an excellent FASTA parser in C, taken from 
+Note that `src/kseq.h` is an excellent FASTA parser in C, taken from 
 [HTSLib](https://github.com/samtools/htslib), part of the 
 [SAMTools](https://github.com/samtools) codebase.
 
@@ -65,6 +65,10 @@ the information needed for one run. Whether or not you provide a configuration
 file, AD-LIBS will create a new one with all given parameters along with your 
 output files, in case you want to run AD-LIBS again with all or most of the 
 same parameters.
+
+Note that in order for `bin/adlibs.py`, you will need to have `python2.7` in your
+`$PATH` environment variable, or you can run it by explicitly including the path
+to `python2.7`: `/path/to/python2.7 bin/adlibs.py`
 
 ## Example input
 
