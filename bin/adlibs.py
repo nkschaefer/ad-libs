@@ -590,7 +590,7 @@ def calc_winsize(options, pi1, pi2, pi_between, f, r, resample_prob, \
     # Determine maximum and minimum bounds on window size.
     pi_min = min(pi1, pi2, pi_between)
     pi_max = max(pi1, pi2, pi_between)
-    
+
     # Minimum window size: depends on standard deviations of emission probability
     # distributions
     if options.x_seqs is not None and len(options.x_seqs) > 0:
@@ -611,10 +611,24 @@ def calc_winsize(options, pi1, pi2, pi_between, f, r, resample_prob, \
         prob_sum_max = max((probs['aa_ab'] + probs['aa_bb'], \
             probs['ab_aa'] + probs['ab_bb'], \
             probs['bb_aa'] + probs['bb_ab']))
+        
+        #win_lim_indv_nonround = int(math.floor(((h_t_x-2*prob_lim)/prob_sum_max)))
+
         win_lim_indv = int(math.floor(((h_t_x-2*prob_lim)/prob_sum_max)/1000)*1000)
         if win_lim_indv < win_max:
             win_max = win_lim_indv
-    
+            
+            win_max_prev = win_max
+            while win_max < win_min:
+                # Iteratively reduce max prob threshold until we fix it.
+                prob_lim *= 0.5
+                win_max = int(math.floor(((h_t_x-2*prob_lim)/prob_sum_max)))
+                if win_max < win_min and win_max_prev == win_max:
+                    # Infinite loop.
+                    print("ERROR: the parameters you have provided make choosing a window size impossible. "
+                        "Please enter a different number of generations since admixture and try again.", file=sys.stderr)
+                    exit(1)
+                win_max_prev = win_max
     window = None
     
     if options.window is not None:
@@ -624,7 +638,7 @@ def calc_winsize(options, pi1, pi2, pi_between, f, r, resample_prob, \
             print("# Given window size of {} is below minimum value of {}; using "
                 "this value instead.".format(window, win_min), file=sys.stderr)
             window = win_min
-        if window > win_max:
+        elif window > win_max:
             print("# Given window size of {} is greater than maximum value of {}; using "
                 "this value instead.".format(window, win_max), file=sys.stderr)
             window = win_max

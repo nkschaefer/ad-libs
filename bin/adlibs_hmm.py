@@ -375,6 +375,7 @@ def main(args):
     resample_prob_x = options.resample_prob_x
     
     x_seqs = []
+
     if options.x_seqs is not None:
         x_seqs = options.x_seqs
     
@@ -399,7 +400,9 @@ def main(args):
     
     # Get distribution parameters.
     params = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=False, debug=False)
-    params_x = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=True, debug=False)
+    params_x = None
+    if options.x_seqs is not None:
+        params_x = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=True, debug=False)
        
     for win_scores in compute_scores_file(sys.stdin):
         
