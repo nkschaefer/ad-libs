@@ -225,6 +225,7 @@ def parse_config_file(filename):
         a list representing arguments from the config file, which will be interpreted
             by the argparse module
     """
+    dirname = os.path.dirname(filename)
     argstr = defaultdict(list)
     f = open(filename, 'r')
     has_newline = False
@@ -290,6 +291,17 @@ def parse_config_file(filename):
                 # file names.
                 argstr['-f'].append("0")
     f.close()
+    
+    # Fix file paths, if necessary.
+    file_keys = ['-1', '-2', '-h', '-og']
+    for file_key in file_keys:
+        if file_key in argstr:
+            for k, v in enumerate(argstr[file_key]):
+                if (os.path.basename(v) == v):
+                    # Path to file was not given. Assume files are in config
+                    # file directory.
+                    argstr[file_key][k] = dirname + '/' + v
+
     if not has_newline:
         f = open(filename, 'a')
         print("\n", sep="", end="", file=f)
@@ -875,7 +887,9 @@ def main(args):
     # args normally.
     configfile_exists = False
     
-    if os.path.isfile(args[1]):
+    configfile_dir = None
+    
+    if len(args) > 1 and os.path.isfile(args[1]):
         configfile_exists = True
         argstr = parse_config_file(args[1])
         # Look for any arguments passed normally that weren't provided in the config file; 

@@ -36,6 +36,7 @@ These packages are also installable using [Pip](https://pypi.python.org/pypi/pip
 
 `pip install pomegranate`
 
+If you do not have root access, you install these packages for your user using the --user flag.
 
 ### C programs
 AD-LIBS equires gcc for compiling C components, as well as [zlib](http://www.zlib.net/) 
