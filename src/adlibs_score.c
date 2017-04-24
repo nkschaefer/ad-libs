@@ -30,7 +30,7 @@ kseq_t* parse_fasta(char *filename){
     }
 }
 
-const char capitalize(char base){
+char capitalize(char base){
     if (base == 'a'){
         return 'A';
     } else if (base == 'c'){
@@ -92,8 +92,8 @@ float get_rand(){
 /**
  * Function to compute a score in a given window.
  */
-const float calc_score_window(kseq_t* pop1[], int num_pop1, \
-    kseq_t* pop2[], int num_pop2, kseq_t* hybrid, long int win_start, long int win_end, \
+float calc_score_window(kseq_t* pop1[], int num_pop1, \
+    kseq_t* pop2[], int num_pop2, kseq_t* hybrid, size_t win_start, size_t win_end, \
     float skip, int skipscore, int mask_cpg){
     
     // These arrays will keep track of whether or not we are currently in 
@@ -132,9 +132,7 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     // Store number of "N" bases found in all pop 2 sequences
     float n_count_2 = 0;
     
-    int added_count = 0;
-    
-    for (long int baseIndex = win_start; baseIndex < win_end; baseIndex++){
+    for (size_t baseIndex = win_start; baseIndex < win_end; baseIndex++){
         unsigned char hchr = capitalize(hybrid->seq.s[baseIndex]);
         if (mask_cpg && ((hchr == 'G' && baseIndex > 0 && 
             capitalize(hybrid->seq.s[baseIndex-1]) == 'C') ||
@@ -408,10 +406,10 @@ int main(int argc, char *argv[]) {
     // Set default values
     int num_pop1 = 0;
     int num_pop2 = 0;
-    kseq_t* pop1[10];
-    kseq_t* pop2[10];
-    kseq_t* hybrid;
-    long int window = 0;
+    kseq_t* pop1[10] = {NULL};
+    kseq_t* pop2[10] = {NULL};
+    kseq_t* hybrid = NULL;
+    size_t window = 0;
     float skip = 0.25;
     int skipscore = 999;
     int mask_cpg = 0;
@@ -439,9 +437,15 @@ int main(int argc, char *argv[]) {
                 pop2[num_pop2] = parse_fasta(optarg);
                 num_pop2++;
                 break;
-            case 'w':
-                window = atoi(optarg);
+            case 'w': {
+                int t_window = atoi(optarg);
+                if (t_window <= 0){
+                    fprintf(stderr, "ERROR: please provide a valid window width in base pairs.\n");
+                    exit(1);
+                }
+                window = t_window;
                 break;
+            };
             case 'h':
                 hybrid = parse_fasta(optarg);
                 break;
@@ -464,12 +468,8 @@ int main(int argc, char *argv[]) {
                 help(0);
         }    
     }
-    
+
     // Error check.
-    if (window == 0){
-        fprintf(stderr, "ERROR: please provide a valid window width in base pairs.\n");
-        exit(1);
-    }
     if (skip < 0 || skip > 1){
         fprintf(stderr, "ERROR: please provide a valid skip threshold between 0 and 1.\n");
         exit(1);
@@ -511,7 +511,7 @@ pop2[pop2_index]->name.s, hybrid->name.s);
 
         // Process this sequence.
         // First, determine shortest sequence.
-        long int shortest = pop1[num_pop1-1]->seq.l;
+        size_t shortest = pop1[num_pop1-1]->seq.l;
         for (int pop1_index = 0; pop1_index < num_pop1-1; pop1_index++){
             if (pop1[pop1_index]->seq.l < shortest){
                 shortest = pop1[pop1_index]->seq.l;
@@ -529,8 +529,8 @@ pop2[pop2_index]->name.s, hybrid->name.s);
         }
         else{
             // Calculate score in every window.
-            for (long int win_start = 0; win_start < shortest; win_start = win_start + window){
-                long int win_end = win_start + window;
+            for (size_t win_start = 0; win_start < shortest; win_start = win_start + window){
+                size_t win_end = win_start + window;
                 if (win_end >= shortest){
                     win_end = shortest-1;
                 }
@@ -539,11 +539,11 @@ pop2[pop2_index]->name.s, hybrid->name.s);
             
                 // Print score to stdout (in BED format).
                 if (score == skipscore){
-                    fprintf(stdout, "%s\t%ld\t%ld\tinf\n", hybrid->name.s, win_start, 
+                    fprintf(stdout, "%s\t%lu\t%lu\tinf\n", hybrid->name.s, win_start,
                         win_end);
                 }
                 else{
-                    fprintf(stdout, "%s\t%ld\t%ld\t%g\n", hybrid->name.s, win_start, 
+                    fprintf(stdout, "%s\t%lu\t%lu\t%g\n", hybrid->name.s, win_start,
                         win_end, score);
                 }
             }

@@ -38,7 +38,7 @@ struct pi_stats {
     long int seqlen_between;
 };
 
-const char capitalize(char base){
+char capitalize(char base){
     if (base == 'a'){
         return 'A';
     } else if (base == 'c'){
@@ -56,8 +56,8 @@ const char capitalize(char base){
 /**
  * Function to compute numbers needed for computation of pi, on a single scaffold.
  */
-const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1, 
-    int num_pop2, long int shortest){
+struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1,
+    int num_pop2, size_t shortest){
     struct pi_stats stats;
     stats.diffs_pop1 = 0;
     stats.diffs_pop2 = 0;
@@ -66,8 +66,7 @@ const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1,
     stats.seqlen_pop2 = shortest;
     stats.seqlen_between = shortest;
     
-    for (int baseIndex = 0; baseIndex < shortest; baseIndex++){
-        
+    for (size_t baseIndex = 0; baseIndex < shortest; baseIndex++){
         long int this_pop1_diffs = 0;
         long int this_pop2_diffs = 0;
         long int this_between_diffs = 0;
@@ -155,7 +154,7 @@ const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1,
     return stats;
 }
 
-const int binomial_coeff(int n, int k){
+int binomial_coeff(int n, int k){
     int numerator = 1;
     int denominator = 1;
     
@@ -202,7 +201,6 @@ int main(int argc, char *argv[]) {
     kseq_t* pop2[10];
     long int base_limit = -1;
     
-    int option_index = 0;
     int ch;
     
     // Pointer to end character of strings when converting to floats(?)
@@ -294,7 +292,7 @@ population.\n");
         // Process this sequence.
         
         // First, determine shortest sequence.
-        long int shortest = pop1[num_pop1-1]->seq.l;
+        size_t shortest = pop1[num_pop1-1]->seq.l;
         for (int pop1_index = 0; pop1_index < num_pop1-1; pop1_index++){
             if (pop1[pop1_index]->seq.l < shortest){
                 shortest = pop1[pop1_index]->seq.l;

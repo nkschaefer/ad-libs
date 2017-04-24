@@ -38,15 +38,15 @@ struct fhat_stats {
  * Function to compute f_hat statistics (numbers of different types of sites)
  * on a given scaffold.
  */
-const struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
-    char* out, long int shortest){
+struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
+    char* out, size_t shortest){
     struct fhat_stats stats;
     stats.abxba = 0;
     stats.baxba = 0;
     stats.axbba = 0;
     stats.bxaba = 0;
     
-    for (int baseIndex = 0; baseIndex < shortest; baseIndex++){
+    for (size_t baseIndex = 0; baseIndex < shortest; baseIndex++){
         if (anc2[baseIndex] != 'N' && hybrid[baseIndex] != 'N' &&
             anc1a[baseIndex] != 'N' && anc1b[baseIndex] != 'N' &&
             out[baseIndex] != 'N'){
@@ -248,7 +248,7 @@ int main(int argc, char *argv[]) {
         }
         
         // Determine shortest sequence.
-        long int shortest = pop1a->seq.l;
+        size_t shortest = pop1a->seq.l;
         if (pop1b->seq.l < shortest){
             shortest = pop1b->seq.l;
         }
