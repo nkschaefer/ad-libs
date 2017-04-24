@@ -26,4 +26,6 @@ int main(int argc, char *argv[]) {
         }
         fprintf(stdout, "%s", line);
     }
+
+    return 0;
 }

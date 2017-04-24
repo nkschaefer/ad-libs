@@ -96,41 +96,33 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     kseq_t* pop2[], int num_pop2, kseq_t* hybrid, long int win_start, long int win_end, \
     float skip, int skipscore, int mask_cpg){
     
-    long int baseIndex = win_start;
-    int pop1_index = 0;
-    int pop2_index = 0;
-        
     // These arrays will keep track of whether or not we are currently in 
     // an IBS tract with each individual from each ancestral population.
     // If so, they will store the index at which that match began.
     long int match_1[num_pop1];
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         match_1[pop1_index] = -1;
     }
-    pop1_index = 0;
     long int match_2[num_pop2];
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         match_2[pop2_index] = -1;
     }
-    pop2_index = 0;
     
     // These arrays will store an array of each IBS tract length found with
     // each individual in both of the ancestral populations.
     struct flex_array *ibs_1 = malloc(num_pop1 * sizeof(struct flex_array));
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         struct flex_array arr;
         init_array(&arr);
         memcpy(&ibs_1[pop1_index], &arr, sizeof(struct flex_array));
     }
-    pop1_index = 0;
     
     struct flex_array *ibs_2 = malloc(num_pop2 * sizeof(struct flex_array));
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         struct flex_array arr;
         init_array(&arr);
         memcpy(&ibs_2[pop2_index], &arr, sizeof(struct flex_array));
     }
-    pop2_index = 0;
     
     // Store the number of "N" bases found in query sequence
     int n_count_query = 0;
@@ -142,10 +134,7 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     
     int added_count = 0;
     
-    for (baseIndex; baseIndex < win_end; baseIndex++){
-        
-        unsigned char pop1chr;
-        unsigned char pop2chr;
+    for (long int baseIndex = win_start; baseIndex < win_end; baseIndex++){
         unsigned char hchr = capitalize(hybrid->seq.s[baseIndex]);
         if (mask_cpg && ((hchr == 'G' && baseIndex > 0 && 
             capitalize(hybrid->seq.s[baseIndex-1]) == 'C') ||
@@ -157,8 +146,8 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
             n_count_query++;
         }
         
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
-            pop1chr = capitalize(pop1[pop1_index]->seq.s[baseIndex]);
+        for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
+            unsigned char pop1chr = capitalize(pop1[pop1_index]->seq.s[baseIndex]);
             if (mask_cpg && ((pop1chr == 'G' && baseIndex > 0 && 
                 capitalize(pop1[pop1_index]->seq.s[baseIndex-1]) == 'C') ||
                 (pop1chr == 'C' && baseIndex < win_end-1 && 
@@ -181,8 +170,7 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 if (ibs_1[pop1_index].index > 0){
                     float prev_ibs_sum = 0;
                     float prev_ibs_tot = 0;
-                    int prev_ibs_index = 0;
-                    for (prev_ibs_index; prev_ibs_index < ibs_1[pop1_index].index; \
+                    for (int prev_ibs_index = 0; prev_ibs_index < ibs_1[pop1_index].index; \
                         prev_ibs_index++){
                         prev_ibs_sum += ibs_1[pop1_index].arr[prev_ibs_index];
                         prev_ibs_tot++;   
@@ -228,13 +216,12 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 match_1[pop1_index] = -1;
             }
         }
-        pop1_index = 0;
         
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
-            pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
-            if (mask_cpg && ((pop2chr == 'G' && baseIndex > 0 &&
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
+            unsigned char pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
+            if (mask_cpg && ((pop2chr == 'G' && baseIndex > 0 && 
                 capitalize(pop2[pop2_index]->seq.s[baseIndex-1]) == 'C') ||
-                (pop2chr == 'C' && baseIndex < win_end-1 &&
+                (pop2chr == 'C' && baseIndex < win_end-1 && 
                 capitalize(pop2[pop2_index]->seq.s[baseIndex+1]) == 'G'))){
                 pop2chr = 'N';
             }
@@ -243,8 +230,7 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 if (ibs_2[pop2_index].index > 0){
                     float prev_ibs_sum = 0;
                     float prev_ibs_tot = 0;
-                    int prev_ibs_index = 0;
-                    for (prev_ibs_index; prev_ibs_index < ibs_2[pop2_index].index; \
+                    for (int prev_ibs_index = 0; prev_ibs_index < ibs_2[pop2_index].index; \
                         prev_ibs_index++){
                         prev_ibs_sum += ibs_2[pop2_index].arr[prev_ibs_index];
                         prev_ibs_tot ++;   
@@ -290,7 +276,6 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
             }
   
         }
-        pop2_index = 0;
     }
     
     
@@ -298,20 +283,18 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     // end, was found. Doing this will probably bias things downward (since these are
     // incomplete IBS tracts).
     /**
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         //if (match_1[pop1_index] > -1){
         if (match_1[pop1_index] > -1 && ibs_1[pop1_index].index == 0){
             add_item(&ibs_1[pop1_index], win_end-match_1[pop1_index]);
         }
     }
-    pop1_index = 0;
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         //if (match_2[pop2_index] > -1){
         if (match_2[pop2_index] > -1 && ibs_2[pop2_index].index == 0){
             add_item(&ibs_2[pop2_index], win_end-match_2[pop2_index]);
         }
     }
-    pop2_index = 0;
     **/
     
     // Calculate score.
@@ -322,14 +305,12 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
         (float)n_count_1/winsize/(float)num_pop1 >= skip || 
         (float)n_count_2/winsize/(float)num_pop2 >= skip){
         // Free everything.
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
+        for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
             free_array(&ibs_1[pop1_index]);
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             free_array(&ibs_2[pop2_index]);
         }
-        pop2_index = 0;
         return skipscore;
     }
     
@@ -340,11 +321,9 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     float ibs_sum_2 = 0;
     float ibs_tot_2 = 0;
     
-    pop1_index = 0; 
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         int pop_total = (int) ibs_1[pop1_index].index;
-        int ibs_index = 0;
-        for (ibs_index; ibs_index < pop_total; ibs_index++){
+        for (int ibs_index = 0; ibs_index < pop_total; ibs_index++){
             ibs_sum_1 += (float) ibs_1[pop1_index].arr[ibs_index];
             ibs_tot_1++;
         }
@@ -354,10 +333,8 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
         ibs_tot_1 = 1;
     }
     
-    pop2_index = 0;
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
-        int ibs_index = 0;
-        for (ibs_index; ibs_index < ibs_2[pop2_index].index; ibs_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
+        for (int ibs_index = 0; ibs_index < ibs_2[pop2_index].index; ibs_index++){
             ibs_sum_2 += (float) ibs_2[pop2_index].arr[ibs_index];
             ibs_tot_2++;
         }
@@ -369,14 +346,12 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     float ibs_avg_1 = ibs_sum_1/ibs_tot_1;
     float ibs_avg_2 = ibs_sum_2/ibs_tot_2;
     // Free everything.
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         free_array(&ibs_1[pop1_index]);
     }
-    pop1_index = 0;
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         free_array(&ibs_2[pop2_index]);
     }
-    pop2_index = 0;
     if (ibs_avg_1 == 0 || ibs_avg_2 == 0){
         return skipscore;
     }
@@ -506,22 +481,16 @@ int main(int argc, char *argv[]) {
     int progress_h;
     int progress_1[num_pop1];
     int progress_2[num_pop2];
-    
-    int pop1_index = 0;
-    int pop2_index = 0;
-    
-    long int win_start = 0;
-    long int win_end = 0;
-    
+
     //float score;
-    
+
     while((progress_h = kseq_read(hybrid)) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", hybrid->name.s);
         }
         
         // Advance all files by one sequence.
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
+        for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
             progress_1[pop1_index] = kseq_read(pop1[pop1_index]);
             if (strcmp(pop1[pop1_index]->name.s, hybrid->name.s) != 0){
                 fprintf(stderr, "ERROR: sequence IDs %s and %s do not match. \
@@ -530,8 +499,7 @@ pop1[pop1_index]->name.s, hybrid->name.s);
                 exit(1);
             }
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             progress_2[pop2_index] = kseq_read(pop2[pop2_index]);
             if (strcmp(pop2[pop2_index]->name.s, hybrid->name.s) != 0){
                 fprintf(stderr, "ERROR: sequence IDs %s and %s do not match. \
@@ -540,24 +508,20 @@ pop2[pop2_index]->name.s, hybrid->name.s);
                 exit(1);
             }
         }
-        pop2_index = 0;
 
         // Process this sequence.
-        
         // First, determine shortest sequence.
         long int shortest = pop1[num_pop1-1]->seq.l;
-        for (pop1_index; pop1_index < num_pop1-1; pop1_index++){
+        for (int pop1_index = 0; pop1_index < num_pop1-1; pop1_index++){
             if (pop1[pop1_index]->seq.l < shortest){
                 shortest = pop1[pop1_index]->seq.l;
             }
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             if (pop2[pop2_index]->seq.l < shortest){
                 shortest = pop2[pop2_index]->seq.l;
             }
         }
-        pop2_index = 0;
         
         // Skip this sequence if ANY individual is missing it.
         if (shortest < window){
@@ -565,8 +529,8 @@ pop2[pop2_index]->name.s, hybrid->name.s);
         }
         else{
             // Calculate score in every window.
-            for (win_start; win_start < shortest; win_start = win_start + window){
-                win_end = win_start + window;
+            for (long int win_start = 0; win_start < shortest; win_start = win_start + window){
+                long int win_end = win_start + window;
                 if (win_end >= shortest){
                     win_end = shortest-1;
                 }
@@ -583,8 +547,6 @@ pop2[pop2_index]->name.s, hybrid->name.s);
                         win_end, score);
                 }
             }
-            win_start = 0;
-            win_end = 0;
         }
         
     }
@@ -592,10 +554,10 @@ pop2[pop2_index]->name.s, hybrid->name.s);
     // Clean up.
     kseq_destroy(hybrid);
     
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         kseq_destroy(pop1[pop1_index]);
     }
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         kseq_destroy(pop2[pop2_index]);
     }
     

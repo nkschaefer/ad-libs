@@ -1,4 +1,4 @@
-CC=gcc
+CC=gcc -std=c99
 
 all: bin/adlibs_flip_pops bin/adlibs_score bin/calc_fhat bin/pi_pops
 
