@@ -30,7 +30,7 @@ kseq_t* parse_fasta(char *filename){
     }
 }
 
-inline const char capitalize(char base){
+const char capitalize(char base){
     if (base == 'a'){
         return 'A';
     } else if (base == 'c'){
@@ -53,13 +53,13 @@ struct flex_array {
     int *arr;
 };
 
-void inline init_array(struct flex_array *a){
+void init_array(struct flex_array *a){
     a->arr = (int *) malloc(11 * sizeof(int));
     a->index = 0;
     a->len = 10;
 }
 
-void inline add_item(struct flex_array *a, int item){
+void add_item(struct flex_array *a, int item){
     if (a->index == a->len){
         a->len *= 2;
         a->arr = (int *) realloc(a->arr, (a->len) * sizeof(int) + 1);
@@ -72,7 +72,7 @@ void inline add_item(struct flex_array *a, int item){
     a->index++;
 }
 
-void inline free_array(struct flex_array *a){
+void free_array(struct flex_array *a){
     // First zero it out to make sure it doesn't mess things up in the
     // future.
     free(a->arr);
@@ -92,7 +92,7 @@ float get_rand(){
 /**
  * Function to compute a score in a given window.
  */
-inline const float calc_score_window(kseq_t* pop1[], int num_pop1, \
+const float calc_score_window(kseq_t* pop1[], int num_pop1, \
     kseq_t* pop2[], int num_pop2, kseq_t* hybrid, long int win_start, long int win_end, \
     float skip, int skipscore, int mask_cpg){
     

@@ -38,7 +38,7 @@ struct pi_stats {
     long int seqlen_between;
 };
 
-inline const char capitalize(char base){
+const char capitalize(char base){
     if (base == 'a'){
         return 'A';
     } else if (base == 'c'){
@@ -56,7 +56,7 @@ inline const char capitalize(char base){
 /**
  * Function to compute numbers needed for computation of pi, on a single scaffold.
  */
-inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1, 
+const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1, 
     int num_pop2, long int shortest){
     struct pi_stats stats;
     stats.diffs_pop1 = 0;
@@ -170,7 +170,7 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
     return stats;
 }
 
-inline const int binomial_coeff(int n, int k){
+const int binomial_coeff(int n, int k){
     int numerator = 1;
     int denominator = 1;
     

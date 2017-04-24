@@ -38,7 +38,7 @@ struct fhat_stats {
  * Function to compute f_hat statistics (numbers of different types of sites)
  * on a given scaffold.
  */
-inline const struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
+const struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
     char* out, long int shortest){
     struct fhat_stats stats;
     stats.abxba = 0;
