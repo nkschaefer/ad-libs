@@ -300,7 +300,7 @@ population.\n");
     }
     pop2_index = 0;
     
-    while(progress_1[0] = kseq_read(pop1[0]) >= 0){
+    while((progress_1[0] = kseq_read(pop1[0])) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", pop1[0]->name.s);
         }

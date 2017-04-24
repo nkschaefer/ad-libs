@@ -515,7 +515,7 @@ int main(int argc, char *argv[]) {
     
     //float score;
     
-    while(progress_h = kseq_read(hybrid) >= 0){
+    while((progress_h = kseq_read(hybrid)) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", hybrid->name.s);
         }

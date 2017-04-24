@@ -225,7 +225,7 @@ void main(int argc, char *argv[]) {
     int progress_hybrid = 0;
     int progress_out = 0;
     
-    while(progress_1a = kseq_read(pop1a) >= 0){
+    while((progress_1a = kseq_read(pop1a)) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", pop1a->name.s);
         }
