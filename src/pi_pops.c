@@ -347,13 +347,13 @@ population.\n");
         
         // If any sequence has reached the end of the file, bail out here.
         for (pop1_index; pop1_index < num_pop1; pop1_index++){
-            if (pop1[pop1_index] < 0){
+            if (progress_1[pop1_index] < 0){
                 break;
             }
         }
         pop1_index = 0;
         for (pop2_index; pop2_index < num_pop2; pop2_index++){
-            if (pop2[pop2_index] < 0){
+            if (progress_2[pop2_index] < 0){
                 break;
             }
         }
