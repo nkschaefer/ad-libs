@@ -232,11 +232,11 @@ const float calc_score_window(kseq_t* pop1[], int num_pop1, \
         
         for (pop2_index; pop2_index < num_pop2; pop2_index++){
             pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
-            if (mask_cpg && ((pop1chr == 'G' && baseIndex > 0 && 
-                capitalize(pop1[pop1_index]->seq.s[baseIndex-1]) == 'C') ||
-                (pop1chr == 'C' && baseIndex < win_end-1 && 
-                capitalize(pop1[pop1_index]->seq.s[baseIndex+1]) == 'G'))){
-                pop1chr = 'N';
+            if (mask_cpg && ((pop2chr == 'G' && baseIndex > 0 &&
+                capitalize(pop2[pop2_index]->seq.s[baseIndex-1]) == 'C') ||
+                (pop2chr == 'C' && baseIndex < win_end-1 &&
+                capitalize(pop2[pop2_index]->seq.s[baseIndex+1]) == 'G'))){
+                pop2chr = 'N';
             }
             if (pop2chr == 'N' || hchr == 'N'){
                 // (see above)
