@@ -947,17 +947,27 @@ def main(args):
     # Define a numeric score to represent windows in which there was insufficient data
     # to calculate a score.
     skip_score = 999
-        
+
+    tasks = []
     pool = Pool(processes=options.num_procs)
     for hybrid_index in range(0, len(options.hybrid)):
         #worker(options, hybrid_index, pops_flipped, window, f, pi1, pi2, pi_between, resample_prob, resample_prob_x, skip_score, outprefix)
         proc = pool.apply_async(worker, [options, hybrid_index, pops_flipped, window, \
             f, pi1, pi2, pi_between, resample_prob, \
             resample_prob_x, skip_score, outprefix])
+        tasks.append(proc)
+
+    for idx, proc in enumerate(tasks):
+        if options.debug:
+            print("# Waiting for worker process %i of %i" % (idx, len(tasks)),
+                  file=sys.stderr)
+
+        # Re-throw exceptions from async processes
+        proc.get()
+
     pool.close()
     pool.join()
-    
-    
-if __name__ == "__main__" :
-    sys.exit(main(sys.argv))
 
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
