@@ -119,7 +119,7 @@ def parse_args():
         default=None)
     parser.add_argument("--gens", "-g", help=\
         "The estimated number of generations since admixture.",
-        required=False,
+        required=True,
         type=int)
     parser.add_argument("--pop_size", "-N", help=\
         "The estimated population size of the admixed population.",
