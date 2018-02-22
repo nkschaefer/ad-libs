@@ -7,12 +7,12 @@ AA becomes BB and BB becomes AA.
 #include <stdlib.h>
 #include <string.h>
 
-int main(int argc, char *argv[]) {   
-    FILE *instream = stdin;
-    
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
+
     // Buffer to store lines
     char line[100];
-    
     while(fgets(line, sizeof(line), stdin)){
         // State name should be the last 2 letters on the line.
         int linelen = strlen(line);
@@ -26,4 +26,6 @@ int main(int argc, char *argv[]) {
         }
         fprintf(stdout, "%s", line);
     }
+
+    return 0;
 }

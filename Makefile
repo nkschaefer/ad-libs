@@ -1,6 +1,8 @@
-CC=gcc
+CC=gcc -std=c99 -W -Wall -Wextra
 
-all: bin/adlibs_flip_pops bin/adlibs_score bin/calc_fhat bin/pi_pops
+EXECUTABLES=bin/adlibs_flip_pops bin/adlibs_score bin/calc_fhat bin/pi_pops
+
+all: $(EXECUTABLES)
 
 bin/adlibs_flip_pops: src/adlibs_flip_pops.c
 	$(CC) src/adlibs_flip_pops.c -lm -lz -o bin/adlibs_flip_pops
@@ -13,3 +15,6 @@ bin/calc_fhat: src/calc_fhat.c
 
 bin/pi_pops: src/pi_pops.c
 	$(CC) src/pi_pops.c -lm -lz -o bin/pi_pops
+
+clean:
+	rm -vf $(EXECUTABLES)

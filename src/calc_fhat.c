@@ -38,16 +38,15 @@ struct fhat_stats {
  * Function to compute f_hat statistics (numbers of different types of sites)
  * on a given scaffold.
  */
-inline const struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
-    char* out, long int shortest){
+struct fhat_stats fhat_seq(char* anc2, char* hybrid, char* anc1a, char* anc1b, 
+    char* out, size_t shortest){
     struct fhat_stats stats;
     stats.abxba = 0;
     stats.baxba = 0;
     stats.axbba = 0;
     stats.bxaba = 0;
     
-    int baseIndex = 0;
-    for (baseIndex; baseIndex < shortest; baseIndex++){
+    for (size_t baseIndex = 0; baseIndex < shortest; baseIndex++){
         if (anc2[baseIndex] != 'N' && hybrid[baseIndex] != 'N' &&
             anc1a[baseIndex] != 'N' && anc1b[baseIndex] != 'N' &&
             out[baseIndex] != 'N'){
@@ -123,7 +122,7 @@ using the bases already read.\n");
    exit(code); 
 }
 
-void main(int argc, char *argv[]) {    
+int main(int argc, char *argv[]) {
     // Define arguments 
     static struct option long_options[] = {
         {"pop1a", required_argument, 0, 'a'},
@@ -220,21 +219,16 @@ void main(int argc, char *argv[]) {
     // Iterate through every sequence in the FASTA file; for each,
     // compute relevant statistics for that sequence.
     int progress_1a = 0;
-    int progress_1b = 0;
-    int progress_2 = 0;
-    int progress_hybrid = 0;
-    int progress_out = 0;
-    
-    while(progress_1a = kseq_read(pop1a) >= 0){
+    while((progress_1a = kseq_read(pop1a)) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", pop1a->name.s);
         }
 
         // Advance all files by one sequence.
-        progress_1b = kseq_read(pop1b);
-        progress_2 = kseq_read(pop2);
-        progress_hybrid = kseq_read(hybrid);
-        progress_out = kseq_read(outgroup);
+        int progress_1b = kseq_read(pop1b);
+        int progress_2 = kseq_read(pop2);
+        int progress_hybrid = kseq_read(hybrid);
+        int progress_out = kseq_read(outgroup);
         
         // Process this sequence.
         
@@ -254,7 +248,7 @@ void main(int argc, char *argv[]) {
         }
         
         // Determine shortest sequence.
-        long int shortest = pop1a->seq.l;
+        size_t shortest = pop1a->seq.l;
         if (pop1b->seq.l < shortest){
             shortest = pop1b->seq.l;
         }
@@ -312,5 +306,7 @@ void main(int argc, char *argv[]) {
     kseq_destroy(pop2);
     kseq_destroy(hybrid);
     kseq_destroy(outgroup);
+
+    return 0;
 }
 

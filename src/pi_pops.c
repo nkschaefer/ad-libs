@@ -38,7 +38,7 @@ struct pi_stats {
     long int seqlen_between;
 };
 
-inline const char capitalize(char base){
+char capitalize(char base){
     if (base == 'a'){
         return 'A';
     } else if (base == 'c'){
@@ -56,8 +56,8 @@ inline const char capitalize(char base){
 /**
  * Function to compute numbers needed for computation of pi, on a single scaffold.
  */
-inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1, 
-    int num_pop2, long int shortest){
+struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1,
+    int num_pop2, size_t shortest){
     struct pi_stats stats;
     stats.diffs_pop1 = 0;
     stats.diffs_pop2 = 0;
@@ -66,9 +66,7 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
     stats.seqlen_pop2 = shortest;
     stats.seqlen_between = shortest;
     
-    int baseIndex = 0;
-    for (baseIndex; baseIndex < shortest; baseIndex++){
-        
+    for (size_t baseIndex = 0; baseIndex < shortest; baseIndex++){
         long int this_pop1_diffs = 0;
         long int this_pop2_diffs = 0;
         long int this_between_diffs = 0;
@@ -76,26 +74,15 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
         int pop1_n = 0;
         int pop2_n = 0;
         
-        int pop2_index = 0;
-        int pop1_index2 = 0;
-        int pop1_index = 0;
-        int pop2_index2 = 0;
-        
-        char pop1chr;
-        char pop1bchr;
-        char pop2chr;
-        char pop2bchr;
-        
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
-            pop1chr = capitalize(pop1[pop1_index]->seq.s[baseIndex]);
+        for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
+            char pop1chr = capitalize(pop1[pop1_index]->seq.s[baseIndex]);
             if (pop1chr == 'N'){
                 pop1_n = 1;
                 break;
             }
             if (pop1_index > 0 && pop1_n == 0){
-                pop1_index2 = 0;
-                for (pop1_index2; pop1_index2 < pop1_index; pop1_index2++){
-                    pop1bchr = capitalize(pop1[pop1_index2]->seq.s[baseIndex]);
+                for (int pop1_index2 = 0; pop1_index2 < pop1_index; pop1_index2++){
+                    char pop1bchr = capitalize(pop1[pop1_index2]->seq.s[baseIndex]);
                     // We already checked this base as pop1chr, so we don't
                     // need to check to see if it's N.
                     if (pop1chr != pop1bchr){
@@ -103,9 +90,8 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
                     }
                 }
             }
-            pop2_index = 0;
-            for (pop2_index; pop2_index < num_pop2; pop2_index++){
-                pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
+            for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
+                char pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
                 if (pop2chr == 'N'){
                     pop2_n = 1;
                     break;
@@ -116,17 +102,15 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
             }
         }
         
-        pop2_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
-            pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
+            char pop2chr = capitalize(pop2[pop2_index]->seq.s[baseIndex]);
             if (pop2chr == 'N' || pop2_n == 1){
                 pop2_n = 1;
                 break;
             }
             if (pop2_index > 0 && pop2_n == 0){
-                pop2_index2 = 0;
-                for (pop2_index2; pop2_index2 < pop2_index; pop2_index2++){
-                    pop2bchr = capitalize(pop2[pop2_index2]->seq.s[baseIndex]);
+                for (int pop2_index2 = 0; pop2_index2 < pop2_index; pop2_index2++){
+                    char pop2bchr = capitalize(pop2[pop2_index2]->seq.s[baseIndex]);
                     // We already checked this base as pop2chr, so we don't
                     // need to check to see if it's N.
                     if (pop2chr != pop2bchr){
@@ -170,16 +154,14 @@ inline const struct pi_stats pi_seq(kseq_t* pop1[], kseq_t* pop2[], int num_pop1
     return stats;
 }
 
-inline const int binomial_coeff(int n, int k){
+int binomial_coeff(int n, int k){
     int numerator = 1;
     int denominator = 1;
     
-    int term = n;
-    for (term; term >= n-(k-1); term--){
+    for (int term = n; term >= n-(k-1); term--){
         numerator = numerator*term;
     }
-    term = k;
-    for (term; term >= 1; term--){
+    for (int term = k; term >= 1; term--){
         denominator = denominator*term;
     }
     return numerator/denominator;
@@ -210,7 +192,7 @@ using the bases already read.\n");
    exit(code); 
 }
 
-void main(int argc, char *argv[]) {    
+int main(int argc, char *argv[]) {
     
     // Set default argument values
     int num_pop1 = 0;
@@ -219,7 +201,6 @@ void main(int argc, char *argv[]) {
     kseq_t* pop2[10];
     long int base_limit = -1;
     
-    int option_index = 0;
     int ch;
     
     // Pointer to end character of strings when converting to floats(?)
@@ -287,46 +268,37 @@ population.\n");
     int progress_1[num_pop1];
     int progress_2[num_pop2];
     
-    int pop1_index = 0;
-    int pop2_index = 0;
-    
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         progress_1[pop1_index] = 0;
     }
-    pop1_index = 0;
     
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         progress_2[pop2_index] = 0;
     }
-    pop2_index = 0;
     
-    while(progress_1[0] = kseq_read(pop1[0]) >= 0){
+    while((progress_1[0] = kseq_read(pop1[0])) >= 0){
         if (verbose_flag){
             fprintf(stderr, "Processing seq %s\n", pop1[0]->name.s);
         }
-        pop1_index++;
         
         // Advance all files by one sequence.
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
+        for (int pop1_index = 1; pop1_index < num_pop1; pop1_index++){
             progress_1[pop1_index] = kseq_read(pop1[pop1_index]);
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             progress_2[pop2_index] = kseq_read(pop2[pop2_index]);
         }
-        pop2_index = 0;
 
         // Process this sequence.
         
         // First, determine shortest sequence.
-        long int shortest = pop1[num_pop1-1]->seq.l;
-        for (pop1_index; pop1_index < num_pop1-1; pop1_index++){
+        size_t shortest = pop1[num_pop1-1]->seq.l;
+        for (int pop1_index = 0; pop1_index < num_pop1-1; pop1_index++){
             if (pop1[pop1_index]->seq.l < shortest){
                 shortest = pop1[pop1_index]->seq.l;
             }
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             if (pop2[pop2_index]->seq.l < shortest){
                 shortest = pop2[pop2_index]->seq.l;
             }
@@ -346,18 +318,16 @@ population.\n");
         seqlen_between += stats.seqlen_between;
         
         // If any sequence has reached the end of the file, bail out here.
-        for (pop1_index; pop1_index < num_pop1; pop1_index++){
-            if (pop1[pop1_index] < 0){
+        for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
+            if (progress_1[pop1_index] < 0){
                 break;
             }
         }
-        pop1_index = 0;
-        for (pop2_index; pop2_index < num_pop2; pop2_index++){
-            if (pop2[pop2_index] < 0){
+        for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
+            if (progress_2[pop2_index] < 0){
                 break;
             }
         }
-        pop2_index = 0;
         
         // If we are set to stop scanning after a given number of bases,
         // bail out here.
@@ -380,12 +350,13 @@ population.\n");
     printf("%f\t%f\t%f\n", pi1, pi2, pibetween);
     
     // Clean up.
-    for (pop1_index; pop1_index < num_pop1; pop1_index++){
+    for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         kseq_destroy(pop1[pop1_index]);
     }
-    for (pop2_index; pop2_index < num_pop2; pop2_index++){
+    for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         kseq_destroy(pop2[pop2_index]);
     }
 
+    return 0;
 }
 
