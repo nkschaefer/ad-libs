@@ -95,3 +95,7 @@ population A ancestry, AB for heterozygous ancestry, and BB for homozygous
 population B ancestry). You can try altering parameters and re-running as you 
 wish to see how it affects results.
 
+## Citing AD-LIBS
+
+AD-LIBS was described in the article [AD-LIBS: inferring ancestry across hybrid genomes using low-coverage sequence data](https://doi.org/10.1186/s12859-017-1613-0), NK Schaefer, B Shapiro, and RE Green, BMC Bioinformatics, 2017, and we'd appreciate a citation if you use it in your research.
+
