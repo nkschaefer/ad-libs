@@ -99,6 +99,10 @@ population A ancestry, AB for heterozygous ancestry, and BB for homozygous
 population B ancestry). You can try altering parameters and re-running as you 
 wish to see how it affects results.
 
+## Troubleshooting
+
+If AD-LIBS creates one or more empty BED files, the most likely problem is that one or more of your genomes has too many ambiguous bases (Ns). In this case, you can try to increase the skip threshold parameter -- this is the percent of all bases in each window allowed to be N before the window is skipped -- so setting it to 0.75 means AD-LIBS will still process a window that is up to 75% N bases. If this doesn't work, you can increase the window size to try to increase the number of valid bases in each window. Otherwise, you can re-generate your pseudohaploid FASTA files using lower quality filters to allow more bases to come through.
+
 ## Citing AD-LIBS
 
 AD-LIBS was described in the article [AD-LIBS: inferring ancestry across hybrid genomes using low-coverage sequence data](https://doi.org/10.1186/s12859-017-1613-0), NK Schaefer, B Shapiro, and RE Green, BMC Bioinformatics, 2017. We'd appreciate a citation if you use it in your research.
