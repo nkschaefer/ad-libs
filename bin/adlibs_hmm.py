@@ -79,6 +79,11 @@ def parse_args():
         "The estimated population size of the admixed population.",
         required=True,
         type=int)
+    parser.add_argument("--flip_pops", "-F", help=\
+        "Specify to flip populations A and B -- that is, state AA will become BB and \
+        state BB will become AA in output.", \
+        required=False,\
+        action="store_true")
     
     parser.add_argument("--reduce_het", "-rh", help=\
         "Build into the model transition probabilities the expected reduction in "
@@ -329,7 +334,7 @@ def compute_scores_file(score_file):
     score_file.close()
     yield numpy.array(scores)
 
-def path_to_bed(path, win_scores):
+def path_to_bed(path, win_scores, flip_pops=False):
     """
     Given a Pomegranate HMM path returned by the viterbi method, prints the path
     in the form of seqname start end state in BED format, where state is the name of
@@ -346,8 +351,14 @@ def path_to_bed(path, win_scores):
         elif state.name[0:5] == "skip-":
             continue
         else:
+            sname = state.name
+            if flip_pops:
+                if sname == "AA":
+                    sname = "BB"
+                elif sname == "BB":
+                    sname = "AA"
             chrom, start_index, end_index = win_scores[state_index-1,0:3]
-            print("{}\t{}\t{}\t{}".format(chrom, start_index, end_index, state.name))
+            print("{}\t{}\t{}\t{}".format(chrom, start_index, end_index, sname))
                 
 def main(args):
     """
@@ -431,8 +442,8 @@ def main(args):
             skip_score=skip_score)
         
         likelihood, path = model.viterbi(query_data)
-        
-        path_to_bed(path, win_scores)
+    
+        path_to_bed(path, win_scores, flip_pops=options.flip_pops)
     
 
 if __name__ == "__main__" :

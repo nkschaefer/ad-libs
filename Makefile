@@ -1,9 +1,6 @@
 CC=gcc
 
-all: bin/adlibs_flip_pops bin/adlibs_score bin/calc_fhat bin/pi_pops
-
-bin/adlibs_flip_pops: src/adlibs_flip_pops.c
-	$(CC) src/adlibs_flip_pops.c -lm -lz -o bin/adlibs_flip_pops
+all: bin/adlibs_score bin/calc_fhat bin/pi_pops
 
 bin/adlibs_score: src/adlibs_score.c
 	$(CC) src/adlibs_score.c -lm -lz  -o bin/adlibs_score

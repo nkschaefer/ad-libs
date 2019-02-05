@@ -814,7 +814,7 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
         cmd1.append(filename)
     cmd1.append('-h')
     cmd1.append(options.hybrid[index])
-
+    
     cmd2 = ['{}/adlibs_hmm.py'.format(ADLIBS_DIR), \
         '-w', str(window), \
         '-p', str(pi1), str(pi2), str(pi_between), \
@@ -832,7 +832,9 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
         cmd2.append('-rh')
     cmd2.append('-f')
     cmd2.append(str(f[index]))
-    
+    if pops_flipped:
+        cmd2.append("-F")
+        
     scoresfile = None
     
     outfilename = "{}{}.bed".format(outprefix, fnbase)
@@ -846,25 +848,13 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
         p1 = subprocess.Popen(cmd1, stdout=scoresfile)
         subprocess.Popen.wait(p1)
         scoresfile.close()
-        scoresfile = open(scoresfilename, 'r')
-        if pops_flipped:
-            p2 = subprocess.Popen(cmd2, stdin=scoresfile, stdout=subprocess.PIPE)
-            p3 = subprocess.Popen(['bin/adlibs_flip_pops'], stdin=p2.stdout, \
-                stdout=outfile)
-            final_proc = p3
-        else:
-            p2 = subprocess.Popen(cmd2, stdin=scoresfile, stdout=outfile)
-            final_proc = p2
+        scoresfile = open(scoresfilename, 'r')        
+        p2 = subprocess.Popen(cmd2, stdin=scoresfile, stdout=outfile)
+        final_proc = p2
     else:
         p1 = subprocess.Popen(cmd1, stdout=subprocess.PIPE)
-        if pops_flipped:
-            p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=subprocess.PIPE)
-            p3 = subprocess.Popen(['bin/adlibs_flip_pops'], stdin=p2.stdout, \
-                stdout=outfile)
-            final_proc = p3
-        else:
-            p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=outfile)
-            final_proc = p2
+        p2 = subprocess.Popen(cmd2, stdin=p1.stdout, stdout=outfile)
+        final_proc = p2
     
     subprocess.Popen.wait(final_proc)
     out, err = final_proc.communicate()
