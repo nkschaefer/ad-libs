@@ -14,4 +14,4 @@ bin/pi_pops: src/pi_pops.c
 	$(CC) src/pi_pops.c -lm -lz -o bin/pi_pops
 
 clean:
-rm -vf $(EXECUTABLES)
+	rm -vf $(EXECUTABLES)

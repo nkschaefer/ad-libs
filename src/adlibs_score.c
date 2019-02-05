@@ -49,7 +49,7 @@ char capitalize(char base){
 // http://stackoverflow.com/questions/3536153/c-dynamically-growing-array
 struct flex_array {
     size_t len;
-    int index;
+    unsigned int index;
     int *arr;
 };
 
@@ -168,7 +168,7 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 if (ibs_1[pop1_index].index > 0){
                     float prev_ibs_sum = 0;
                     float prev_ibs_tot = 0;
-                    for (int prev_ibs_index = 0; prev_ibs_index < ibs_1[pop1_index].index; \
+                    for (unsigned int prev_ibs_index = 0; prev_ibs_index < ibs_1[pop1_index].index; \
                         prev_ibs_index++){
                         prev_ibs_sum += ibs_1[pop1_index].arr[prev_ibs_index];
                         prev_ibs_tot++;   
@@ -228,7 +228,7 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 if (ibs_2[pop2_index].index > 0){
                     float prev_ibs_sum = 0;
                     float prev_ibs_tot = 0;
-                    for (int prev_ibs_index = 0; prev_ibs_index < ibs_2[pop2_index].index; \
+                    for (unsigned int prev_ibs_index = 0; prev_ibs_index < ibs_2[pop2_index].index; \
                         prev_ibs_index++){
                         prev_ibs_sum += ibs_2[pop2_index].arr[prev_ibs_index];
                         prev_ibs_tot ++;   
@@ -332,7 +332,7 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
     }
     
     for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
-        for (int ibs_index = 0; ibs_index < ibs_2[pop2_index].index; ibs_index++){
+        for (unsigned int ibs_index = 0; ibs_index < ibs_2[pop2_index].index; ibs_index++){
             ibs_sum_2 += (float) ibs_2[pop2_index].arr[ibs_index];
             ibs_tot_2++;
         }
