@@ -1,5 +1,9 @@
-# ad-libs
-local ancestry inference tool for low-coverage resequencing data
+# AD-LIBS
+AD-LIBS is a local ancestry inference tool for low-coverage resequencing data. It is described in [this paper](https://doi.org/10.1186/s12859-017-1613-0). The goal of AD-LIBS is to take a low-coverage genome from one or more hybrid/admixed individuals, along with one or more low-coverage genomes from representatives of two ancestral populations, and produce a map of where in the genome the hybrid individual derives ancestry from each ancestral population. Maps consist of fixed-width windows across the genome, and each window is labeled as homozygous for ancestry from one or the other ancestral population, or heterozygous for ancestry. Because of this, AD-LIBS is only suited for analysis of diploid organisms.
+
+To circumvent problems with identifying heterozygous sites in low-coverage samples, AD-LIBS reads in one FASTA file per individual. FASTA files must be aligned to the same reference genome and should be "pseudo-haploid," where every base is randomly sampled from one or the other parental haplotype, as has been done in studies like [this one](https://doi.org/10.1371/journal.pgen.1003345). To create pseudo-haploid FASTA files, we recommend using the [pu2fa program](https://github.com/Paleogenomics/Chrom-Compare) after mapping reads. 
+
+Results are in [BED format](https://genome.ucsc.edu/FAQ/FAQformat.html#format1), with a fourth column denoting ancestry in a given window (AA for homozygous population A, AB for heterozygous, and BB for homozygous population B). [BEDTools](https://github.com/arq5x/bedtools2) contains many programs helpful for downstream analysis of these files.
 
 ## Installation
 
@@ -94,4 +98,8 @@ with start and end coordinates, along with a label (AA for homozygous
 population A ancestry, AB for heterozygous ancestry, and BB for homozygous 
 population B ancestry). You can try altering parameters and re-running as you 
 wish to see how it affects results.
+
+## Citing AD-LIBS
+
+AD-LIBS was described in the article [AD-LIBS: inferring ancestry across hybrid genomes using low-coverage sequence data](https://doi.org/10.1186/s12859-017-1613-0), NK Schaefer, B Shapiro, and RE Green, BMC Bioinformatics, 2017. We'd appreciate a citation if you use it in your research.
 
