@@ -18,14 +18,14 @@ KSEQ_INIT(gzFile, gzread);
 /**
  * Function to parse FASTA, including gzipped files.
  */
-kseq_t* parse_fasta(char *filename){
-    gzFile fp = gzopen(filename, "r");
+kseq_t* parse_fasta(char *filename, gzFile* fp){
+    *fp = gzopen(filename, "r");
     if (!fp){
         fprintf(stderr, "ERROR: unable to open file %s\n", filename);
         exit(1);
     } else{
         kseq_t* seq;
-        seq = kseq_init(fp);
+        seq = kseq_init(*fp);
         return seq;
     }
 }
@@ -306,9 +306,11 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
         for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
             free_array(&ibs_1[pop1_index]);
         }
+        free(ibs_1);
         for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
             free_array(&ibs_2[pop2_index]);
         }
+        free(ibs_2);
         return skipscore;
     }
     
@@ -347,9 +349,11 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
     for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         free_array(&ibs_1[pop1_index]);
     }
+    free(ibs_1);
     for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         free_array(&ibs_2[pop2_index]);
     }
+    free(ibs_2);
     if (ibs_avg_1 == 0 || ibs_avg_2 == 0){
         return skipscore;
     }
@@ -406,9 +410,15 @@ int main(int argc, char *argv[]) {
     // Set default values
     int num_pop1 = 0;
     int num_pop2 = 0;
-    kseq_t* pop1[10] = {NULL};
-    kseq_t* pop2[10] = {NULL};
+    
+    kseq_t* pop1[100] = {NULL};
+    kseq_t* pop2[100] = {NULL};
+    gzFile pop1f[100];
+    gzFile pop2f[100];
+
     kseq_t* hybrid = NULL;
+    gzFile hybridf;
+
     size_t window = 0;
     float skip = 0.25;
     int skipscore = 999;
@@ -430,11 +440,11 @@ int main(int argc, char *argv[]) {
                 // This option set a flag. No need to do anything here.
                 break;
             case '1':
-                pop1[num_pop1] = parse_fasta(optarg);
+                pop1[num_pop1] = parse_fasta(optarg, &pop1f[num_pop1]);
                 num_pop1++;
                 break;
             case '2':
-                pop2[num_pop2] = parse_fasta(optarg);
+                pop2[num_pop2] = parse_fasta(optarg, &pop2f[num_pop2]);
                 num_pop2++;
                 break;
             case 'w': {
@@ -447,7 +457,7 @@ int main(int argc, char *argv[]) {
                 break;
             };
             case 'h':
-                hybrid = parse_fasta(optarg);
+                hybrid = parse_fasta(optarg, &hybridf);
                 break;
             case 's':
                 skip = atof(optarg);
@@ -553,12 +563,15 @@ pop2[pop2_index]->name.s, hybrid->name.s);
     
     // Clean up.
     kseq_destroy(hybrid);
-    
+    gzclose(hybridf);
+
     for (int pop1_index = 0; pop1_index < num_pop1; pop1_index++){
         kseq_destroy(pop1[pop1_index]);
+        gzclose(pop1f[pop1_index]);
     }
     for (int pop2_index = 0; pop2_index < num_pop2; pop2_index++){
         kseq_destroy(pop2[pop2_index]);
+        gzclose(pop2f[pop2_index]);
     }
     
     return 0;
