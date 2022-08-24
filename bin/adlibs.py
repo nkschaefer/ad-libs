@@ -814,8 +814,6 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
     cmd1.append('-h')
     cmd1.append(options.hybrid[index])
     
-    print(" ".join(cmd1))
-    exit(1)
     cmd2 = ['{}/adlibs_hmm.py'.format(ADLIBS_DIR), \
         '-w', str(window), \
         '-p', str(pi1), str(pi2), str(pi_between), \
