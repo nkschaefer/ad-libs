@@ -1,5 +1,4 @@
-#! /usr/bin/env python2.7
-from __future__ import division, print_function
+#! /usr/bin/env python3
 import sys
 import argparse
 import random
@@ -126,7 +125,7 @@ def compute_scores(ancestral1files, ancestral2files, query, winsize, skip_thresh
         # Define windows.
         win_scores = []
         
-        winStarts = xrange(0, shortest, win)
+        winStarts = range(0, shortest, win)
         
         for winStart in winStarts:
             winEnd = winStart + win

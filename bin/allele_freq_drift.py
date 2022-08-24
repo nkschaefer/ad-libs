@@ -1,5 +1,4 @@
-#! /usr/bin/env python2.7
-from __future__ import division, print_function
+#! /usr/bin/env python3
 import sys
 from scipy.special import gegenbauer, hyp2f1, binom
 import scipy
@@ -194,7 +193,7 @@ def phi_diffusion_t(t, N, nbins=None):
     
     # Do calculation for every possible (discrete) allele frequency not 
     # corresponding to loss or fixation
-    for bin_index in xrange(1, nbins-1):
+    for bin_index in range(1, nbins-1):
     
         # The above function (Diffusion approximation) is a probability 
         # density function, so its results can only be interpreted across
@@ -235,7 +234,7 @@ def phi_diffusion_t(t, N, nbins=None):
     # and denotes a population allele frequency.
     freq_legend = [0] * nbins
     freq_legend[nbins-1] = 1
-    for bin_index in xrange(1, nbins-1):
+    for bin_index in range(1, nbins-1):
         freq_legend[bin_index] = binwidth * bin_index
         
     return (freq_vector, freq_legend)
@@ -269,15 +268,15 @@ def phi_matrix_t(t, N):
     # from i to j copies of an allele over the course of t generations.
     
     m = []
-    for row in xrange(0, 2*N+1):
+    for row in range(0, 2*N+1):
         m.append([0] * (2*N+1))
     m = numpy.matrix(m, dtype=numpy.float64)
     
     # Set "absorbing" conditions. One lost or fixed, an allele must remain
     # lost or fixed.
-    for j in xrange(1, 2*N+1):
+    for j in range(1, 2*N+1):
         m[0,j] = 0
-    for j in xrange(0, 2*N):
+    for j in range(0, 2*N):
         m[2*N,j] = 0
     m[0,0] = 1
     m[2*N, 2*N] = 1
@@ -285,8 +284,8 @@ def phi_matrix_t(t, N):
     # Set other transition probabilities. This is a standard equation based 
     # on the Wright-Fisher model of drift and the binomial distribution. It 
     # can be found in the popular Hartl & Clark population genetics textbook.
-    for i in xrange(1, 2*N):
-        for j in xrange(0, 2*N+1):
+    for i in range(1, 2*N):
+        for j in range(0, 2*N+1):
             m[i,j] = binom(2*N, j) * math.pow((i/(2*N)), j) *\
                 math.pow(((2*N-i)/(2*N)), (2*N-j))
     
@@ -298,7 +297,7 @@ def phi_matrix_t(t, N):
     # of copies of an allele in the population.
     freq_vector = numpy.array([0] * (2*N+1), dtype=numpy.float64)
     
-    for freq in xrange(0, 2*N+1):
+    for freq in range(0, 2*N+1):
         freq_vector[freq] = m[1,freq]
     
     return freq_vector
@@ -350,7 +349,7 @@ def recomb_resample_prob(r, g, N, nthreads=1, matrix=False):
     pool = Pool(nthreads)
     threads = []
         
-    for t_start in xrange(0, g):
+    for t_start in range(0, g):
         t_diff = t_end - t_start
         if matrix:
             thread = pool.apply_async(recomb_resample_prob_aux_matrix, [t_diff, N, r])
@@ -394,7 +393,7 @@ def recomb_resample_prob_aux(t_diff, N, r):
     # Recombination event is sampled twice in an individual in 
     #   generation t_end (f/(2N))^2
     resample_prob = 0
-    for bin_index in xrange(0, len(freq_probs)):
+    for bin_index in range(0, len(freq_probs)):
         freq = freq_legend[bin_index]
         resample_prob += (r * freq_probs[bin_index] * math.pow(freq, 2))
     
@@ -425,7 +424,7 @@ def recomb_resample_prob_aux_matrix(t_diff, N, r):
     # Recombination event is sampled twice in an individual in 
     #   generation t_end (f/(2N))^2
     resample_prob = 0
-    for bin_index in xrange(0, len(freq_probs)):
+    for bin_index in range(0, len(freq_probs)):
         freq = bin_index/(2*N)
         resample_prob += (r * freq_probs[bin_index] * math.pow(freq, 2))
     

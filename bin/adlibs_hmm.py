@@ -1,5 +1,4 @@
-#! /usr/bin/env python2.7
-from __future__ import division, print_function
+#! /usr/bin/env python3
 import sys
 import argparse
 import subprocess

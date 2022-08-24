@@ -1,5 +1,4 @@
-#! /usr/bin/env python2.7
-from __future__ import division, print_function
+#! /usr/bin/env python3
 import sys
 import argparse
 import pomegranate
@@ -659,7 +658,7 @@ def calc_winsize(options, pi1, pi2, pi_between, f, r, resample_prob, \
         if options.debug:
             print("# Testing window sizes for distribution overlap...", file=sys.stderr)
             print("# size\toverlap", file=sys.stderr)
-        for win_test in xrange(win_min, win_max, 1000):
+        for win_test in range(win_min, win_max, 1000):
             window = win_test
             # NOTE: debug mode will cause these distributions to be plotted 
             # at every step.
@@ -815,6 +814,8 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
     cmd1.append('-h')
     cmd1.append(options.hybrid[index])
     
+    print(" ".join(cmd1))
+    exit(1)
     cmd2 = ['{}/adlibs_hmm.py'.format(ADLIBS_DIR), \
         '-w', str(window), \
         '-p', str(pi1), str(pi2), str(pi_between), \
@@ -889,25 +890,41 @@ def main(args):
         sys.argv = [args[0]] + argstr
 
     options = parse_args()
-            
+    
+    print("Obtain nucleotide diversity in parental populations...", file=sys.stderr)
+    
     # Calculate nucleotide diversity in ancestral populations.
     pi1, pi2, pi_between, pops_flipped = calc_pi(options)
     
+    print("Done!", file=sys.stderr)
+    
+    print("Obtain admixture proportions for all hybrid individuals...", file=sys.stderr)
+
     # Calculate admixture proportions for all hybrid individuals.
     f = calc_f(options, pops_flipped)
+    
+    print("Done!", file=sys.stderr)
 
     # Set recombination rate
     r = 0.01/1000000
     
+    print("Obtain probability of resampling an ancestral recombination event twice in an individual...", \
+        file=sys.stderr)
+
     # Calculate probability of resampling the same ancestral recombination event
     # twice in an individual.
     resample_prob, resample_prob_x = calc_resample_prob(options, r)
-        
+    
+    print("Done!", file=sys.stderr)
+    
+    print("Obtain window size...", file=sys.stderr)
+
     # Calculate window size.
     window = calc_winsize(options, pi1, pi2, pi_between, f, r, resample_prob, \
         resample_prob_x)
     
-        
+    print("Done!", file=sys.stderr)
+
     # Create a new config file that will contain all parameters, including
     # those that need to be calculated, for use in future runs.
     if options.est_params:
@@ -937,6 +954,8 @@ def main(args):
     # Define a numeric score to represent windows in which there was insufficient data
     # to calculate a score.
     skip_score = 999
+    
+    print("Inferring ancestry of windows of hybrid genomes...", file=sys.stderr)
 
     tasks = []
     pool = Pool(processes=options.num_procs)
@@ -958,6 +977,7 @@ def main(args):
     pool.close()
     pool.join()
 
+    print("Done!", file=sys.stderr)
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
