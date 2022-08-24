@@ -17,30 +17,21 @@ AD-LIBS requires the following Python packages:
 
 #### Anaconda
 An easy way to obtain the first three is to use [Anaconda](https://www.continuum.io/downloads), 
-which contains these packages.
+which can install these packages and their dependencies, in an environment built specifically
+for this program. Alternatively, [mamba](https://github.com/mamba-org/mamba) is a faster alternative -- just replace "conda" with "mamba" in commands if it's installed.
 
-If using anaconda and they are not installed, try using `conda install`:
+To set up dependencies, you can just use the included environment.yml file:
 
-`conda install scipy`
+`conda env create -f environment.yml`
 
-`conda install numpy`
+Then activate the new conda environment, called adlibs, before running:
 
-`conda install matplotlib`
+`conda activate adlibs`
 
-Note that pomegranate is not available through Anaconda.
+### One more next step if on Mac OS X
+If you're using Mac OS X, you also need to install the standalone version of argp through [Homebrew](https://brew.sh/): once Homebrew is installed, just run
 
-#### Pip
-These packages are also installable using [Pip](https://pypi.python.org/pypi/pip):
-
-`pip install scipy`
-
-`pip install numpy`
-
-`pip install matplotlib`
-
-`pip install pomegranate`
-
-If you do not have root access, you install these packages for your user using the --user flag.
+`brew install argp-standalone`
 
 ### C programs
 AD-LIBS equires gcc for compiling C components, as well as [zlib](http://www.zlib.net/) 
@@ -71,12 +62,6 @@ file, AD-LIBS will create a new one with all given parameters along with your
 output files, in case you want to run AD-LIBS again with all or most of the 
 same parameters.
 
-Note that in order for `bin/adlibs.py` to work, you will need to have 
-`python2.7` in your `$PATH` environment variable, or you can run it by 
-explicitly including the path to `python2.7` as follows:
-
-`/path/to/python2.7 bin/adlibs.py`
-
 ## Example input
 
 The example directory contains an example configuration file, along with 
@@ -89,7 +74,7 @@ brown bears as ancestral population "B". All output will be prefixed with
 "example." and the `adlibs.config` file contains comments explaining the 
 parameters.
 
-To run AD-LIBS on this example data set, simply type 
+To run AD-LIBS on this example data set, run 
 `bin/adlibs.py example/adlibs.config` while in the main project directory. 
 When complete, you will see 
 [BED files](https://genome.ucsc.edu/FAQ/FAQformat#format1) 
