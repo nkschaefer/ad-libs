@@ -92,13 +92,16 @@ def parse_args():
         action="store_true",
         default=False,
         required=False)
-        
+    
+    parser.add_argument("--skip_score", "-z", type=int, default=999, help=\
+        "Score to represent skipped/missing windows. Must be set to the same value as \
+        this parameter in adlibs_score.", required=False)
     parsed = parser.parse_args()
     
     return parsed
     
 def get_model(r, params, window_size, num_skipped, seq_len, p, \
-    g, resample_prob, x_chr=False, haploid=False, debug=False, h_t=1, skip_score=float("-Inf")):
+    g, resample_prob, x_chr=False, haploid=False, debug=False, h_t=1, skip_score=float("inf")):
     """
     Builds the hidden Markov model for a given chromosome or scaffold, using the
     Pomegranate module.
@@ -200,6 +203,7 @@ def get_model(r, params, window_size, num_skipped, seq_len, p, \
         
     
     if debug:
+        print("# Haploid? {}".format(haploid), file=sys.stderr)
         print("# AA -> AA {}".format(aa_aa), file=sys.stderr)
         print("# AA -> AB {}".format(aa_ab), file=sys.stderr)
         print("# AA -> BB {}".format(aa_bb), file=sys.stderr)
@@ -210,6 +214,10 @@ def get_model(r, params, window_size, num_skipped, seq_len, p, \
         print("# BB -> AB {}".format(bb_ab), file=sys.stderr)
         print("# BB -> BB {}".format(bb_bb), file=sys.stderr)
         print("# SKIP {}".format(skip_prob), file=sys.stderr)
+        print("# EMISSION PROBABILITIES", file=sys.stderr)
+        print("# AA: {} {}".format(params['AA']['mu'], params['AA']['sd']), file=sys.stderr)
+        print("# AB: {} {}".format(params['AB']['mu'], params['AB']['sd']), file=sys.stderr)
+        print("# BB: {} {}".format(params['BB']['mu'], params['BB']['sd']), file=sys.stderr)
 
     aaDist = pomegranate.NormalDistribution(params['AA']['mu'], params['AA']['sd'])
     abDist = pomegranate.NormalDistribution(params['AB']['mu'], params['AB']['sd'])
@@ -226,11 +234,13 @@ def get_model(r, params, window_size, num_skipped, seq_len, p, \
     
     #### ADD skip states
     
-    skip_dist = pomegranate.UniformDistribution(skip_score-0.01, skip_score)
-    
-    aa_skip_state = pomegranate.State(skip_dist, name="skip-AA")
-    ab_skip_state = pomegranate.State(skip_dist, name="skip-AB")
-    bb_skip_state = pomegranate.State(skip_dist, name="skip-BB")
+    skip_dist1 = pomegranate.UniformDistribution(skip_score-0.01, skip_score)
+    skip_dist2 = pomegranate.UniformDistribution(skip_score-0.01, skip_score)
+    skip_dist3 = pomegranate.UniformDistribution(skip_score-0.01, skip_score)
+
+    aa_skip_state = pomegranate.State(skip_dist1, name="skip-AA")
+    ab_skip_state = pomegranate.State(skip_dist2, name="skip-AB")
+    bb_skip_state = pomegranate.State(skip_dist3, name="skip-BB")
     
     model.add_state(aa_skip_state)
     if not haploid:
@@ -250,10 +260,10 @@ def get_model(r, params, window_size, num_skipped, seq_len, p, \
         model.add_transition(model.start, bbState, (1-p)**2 * (1-skip_prob))
         model.add_transition(model.start, bb_skip_state, (1-p)**2 * skip_prob)
     
-    model.add_transition(aaState, model.end, 1/seq_len)
+    model.add_transition(aaState, model.end, 1.0/seq_len)
     if not haploid:
-        model.add_transition(abState, model.end, 1/seq_len)
-    model.add_transition(bbState, model.end, 1/seq_len)
+        model.add_transition(abState, model.end, 1.0/seq_len)
+    model.add_transition(bbState, model.end, 1.0/seq_len)
     
     model.add_transition(aaState, bbState, aa_bb)
     model.add_transition(aaState, aaState, aa_aa)
@@ -287,19 +297,34 @@ def get_model(r, params, window_size, num_skipped, seq_len, p, \
         model.add_transition(ab_skip_state, bbState, ab_bb)
         model.add_transition(bb_skip_state, abState, bb_ab)
     
-    model.add_transition(aa_skip_state, model.end, 1/seq_len)
+    model.add_transition(aa_skip_state, model.end, 1.0/seq_len)
     if not haploid:
-        model.add_transition(ab_skip_state, model.end, 1/seq_len)
-    model.add_transition(bb_skip_state, model.end, 1/seq_len)
+        model.add_transition(ab_skip_state, model.end, 1.0/seq_len)
+    model.add_transition(bb_skip_state, model.end, 1.0/seq_len)
     
-    model.add_transition(aa_skip_state, aaState, 1-skip_prob-aa_ab-aa_bb-1/seq_len)
+    model.add_transition(aa_skip_state, aaState, 1.0-skip_prob-aa_ab-aa_bb-1/seq_len)
     if not haploid:
-        model.add_transition(ab_skip_state, abState, 1-skip_prob-ab_aa-ab_bb-1/seq_len)
-    model.add_transition(bb_skip_state, bbState, 1-skip_prob-bb_aa-bb_ab-1/seq_len)
+        model.add_transition(ab_skip_state, abState, 1.0-skip_prob-ab_aa-ab_bb-1.0/seq_len)
+    model.add_transition(bb_skip_state, bbState, 1.0-skip_prob-bb_aa-bb_ab-1.0/seq_len)
     ###    
-    
-    model.bake()
-    
+    model.bake(merge=None)
+    if debug:
+        print("# STORED TRANSITION MATRIX", file=sys.stderr)
+        trans = []
+        for i in range(0, len(model.states)):
+            name_i = model.states[i].name
+            #print("# {} -> {} = {}".format(name_i, name_i, model.dense_transition_matrix()[i,i]), file=sys.stderr)
+            trans.append((name_i, name_i, model.dense_transition_matrix()[i,i]))
+            for j in range(i + 1, len(model.states)):
+                name_j = model.states[j].name
+                trans.append((name_i, name_j, model.dense_transition_matrix()[i,j]))
+                trans.append((name_j, name_i, model.dense_transition_matrix()[j,i]))
+                #print("# {} -> {} = {}".format(name_i, name_j, model.dense_transition_matrix()[i,j]), file=sys.stderr)
+                #print("# {} -> {} = {}".format(name_j, name_i, model.dense_transition_matrix()[j,i]), file=sys.stderr)
+        trans.sort()
+        for tup in trans:
+            print("# {} -> {} = {}".format(tup[0], tup[1], tup[2]), file=sys.stderr)
+
     return model
 
 def compute_scores_file(score_file):
@@ -376,8 +401,8 @@ def main(args):
         p = 0.001
     
     # Score to represent skipped windows/missing data
-    skip_score = float("inf")
-    
+    skip_score = options.skip_score
+
     # Background recombination rate
     r = 0.01/1000000
     
@@ -385,6 +410,9 @@ def main(args):
     resample_prob_x = options.resample_prob_x
     
     x_seqs = []
+    
+    # Don't change this unless you want to see lots of stuff about parameters
+    debug = False
 
     if options.x_seqs is not None:
         x_seqs = options.x_seqs
@@ -409,16 +437,16 @@ def main(args):
     pi1, pi2, pi_between = options.pi
     
     # Get distribution parameters.
-    params = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=False, debug=False)
+    params = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=False, debug=debug)
     params_x = None
     if options.x_seqs is not None:
-        params_x = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=True, debug=False)
+        params_x = get_dist_params(pi1, pi2, pi_between, options.window, x_chr=True, debug=debug)
        
     for win_scores in compute_scores_file(sys.stdin):
         
         query_data = win_scores[:,3].astype('float')
         num_skipped = sum(query_data==skip_score)
-        
+
         # Determine whether this scaffold is on the X chromosome.
         on_x_chr = win_scores[0][0] in x_seqs
         if on_x_chr:
@@ -437,11 +465,10 @@ def main(args):
         model = get_model(r, params_scaf, \
             options.window, num_skipped, len(query_data), p, \
             options.gens, rs, \
-            x_chr=on_x_chr, haploid=is_haploid, debug=False, h_t=h_t_scaff, \
+            x_chr=on_x_chr, haploid=is_haploid, debug=debug, h_t=h_t_scaff, \
             skip_score=skip_score)
         
         likelihood, path = model.viterbi(query_data)
-    
         path_to_bed(path, win_scores, flip_pops=options.flip_pops)
     
 

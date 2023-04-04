@@ -94,7 +94,7 @@ float get_rand(){
  */
 float calc_score_window(kseq_t* pop1[], int num_pop1, \
     kseq_t* pop2[], int num_pop2, kseq_t* hybrid, size_t win_start, size_t win_end, \
-    float skip, int skipscore, int mask_cpg){
+    float skip, float skipscore, int mask_cpg){
     
     // These arrays will keep track of whether or not we are currently in 
     // an IBS tract with each individual from each ancestral population.
@@ -131,7 +131,6 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
     float n_count_1 = 0;
     // Store number of "N" bases found in all pop 2 sequences
     float n_count_2 = 0;
-    
     for (size_t baseIndex = win_start; baseIndex < win_end; baseIndex++){
         unsigned char hchr = capitalize(hybrid->seq.s[baseIndex]);
         if (mask_cpg && ((hchr == 'G' && baseIndex > 0 && 
@@ -152,7 +151,6 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
                 capitalize(pop1[pop1_index]->seq.s[baseIndex+1]) == 'G'))){
                 pop1chr = 'N';
             }
-                    
             if (pop1chr == 'N' || hchr == 'N'){
                 // This is a tough decision to make. We can't always count an N as
                 // a match or a mismatch, as that will mess things up.
@@ -342,7 +340,6 @@ float calc_score_window(kseq_t* pop1[], int num_pop1, \
     if (ibs_tot_2 == 0){
         ibs_tot_2 = 1;
     }
-    
     float ibs_avg_1 = ibs_sum_1/ibs_tot_1;
     float ibs_avg_2 = ibs_sum_2/ibs_tot_2;
     // Free everything.
@@ -484,7 +481,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "ERROR: please provide a valid skip threshold between 0 and 1.\n");
         exit(1);
     }
-    
+    if (window <= 0){
+        fprintf(stderr, "ERROR: window size must be a positive integer\n");
+        exit(1);
+    }
+
     // Seed random number generator
     srand(time(NULL));
     
@@ -493,6 +494,8 @@ int main(int argc, char *argv[]) {
     int progress_2[num_pop2];
 
     //float score;
+    
+    float skipscore_float = (float)skipscore;
 
     while((progress_h = kseq_read(hybrid)) >= 0){
         if (verbose_flag){
@@ -545,17 +548,11 @@ pop2[pop2_index]->name.s, hybrid->name.s);
                     win_end = shortest-1;
                 }
                 float score = calc_score_window(pop1, num_pop1, pop2, num_pop2, \
-                    hybrid, win_start, win_end, skip, skipscore, mask_cpg);
+                    hybrid, win_start, win_end, skip, skipscore_float, mask_cpg);
             
                 // Print score to stdout (in BED format).
-                if (score == skipscore){
-                    fprintf(stdout, "%s\t%lu\t%lu\tinf\n", hybrid->name.s, win_start,
-                        win_end);
-                }
-                else{
-                    fprintf(stdout, "%s\t%lu\t%lu\t%g\n", hybrid->name.s, win_start,
-                        win_end, score);
-                }
+                fprintf(stdout, "%s\t%lu\t%lu\t%g\n", hybrid->name.s, win_start,
+                    win_end, score);
             }
         }
         

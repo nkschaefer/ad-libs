@@ -833,7 +833,6 @@ def worker(options, index, pops_flipped, window, f, pi1, pi2, pi_between, resamp
     cmd2.append(str(f[index]))
     if pops_flipped:
         cmd2.append("-F")
-        
     scoresfile = None
     
     outfilename = "{}{}.bed".format(outprefix, fnbase)
